@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:expense_tracker/models/expense.dart';
+
 class NewExpense extends StatefulWidget {
   const NewExpense({super.key});
 
@@ -10,6 +12,7 @@ class _NewExpenseState extends State<NewExpense> {
 
   final _titleController = TextEditingController();
   final _amountController =  TextEditingController();
+  DateTime? _selectedDate;
 
   @override
   void disposeTitle() {
@@ -23,15 +26,18 @@ class _NewExpenseState extends State<NewExpense> {
     super.dispose();
   }
 
-  void _presentDatePicker(){
+  void _presentDatePicker() async {
     final now = DateTime.now();
     final firstDate = DateTime(now.year - 1, now.month, now.day);
     final lastDate = DateTime(now.year + 1, now.month, now.day);
-    showDatePicker(
+    final pickedDate = await showDatePicker(
         context: context,
         initialDate: now,
         firstDate: firstDate,
         lastDate: lastDate);
+    setState(() {
+      _selectedDate = pickedDate;
+    });
   }
 
 
@@ -64,7 +70,8 @@ class _NewExpenseState extends State<NewExpense> {
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text('Select Date'),
+                Text(_selectedDate == null ? 'No Date Selected'
+                    : formatter.format(_selectedDate!) ),
                 IconButton(
                     onPressed: _presentDatePicker,
                     icon: Icon(Icons.calendar_month))
@@ -74,6 +81,22 @@ class _NewExpenseState extends State<NewExpense> {
         ),
         Row(
           children: [
+            DropdownButton(
+                items: Category.values
+                    .map(
+                    (category) => DropdownMenuItem(
+                      value: category,
+                      child: Text(
+                        category.name.toString(),
+                      ),
+                    ),
+                    ).toList(),
+
+                onChanged: (value){
+                  print(value);
+
+                }
+                ),
            TextButton(
                onPressed: (){
                  Navigator.pop(context);
