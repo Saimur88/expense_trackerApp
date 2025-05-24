@@ -24,38 +24,65 @@ class _ExpensesState extends State<Expenses> {
         date: DateTime.now()),
   ];
 
-  void _openAddExpenseOverlay(){
+  void _openAddExpenseOverlay() {
     showModalBottomSheet(context: context,
+        isScrollControlled: true,
         builder: (ctx) => NewExpense(onAddExpense: _addExpense));
   }
 
-  void _addExpense(Expense expense){
+  void _addExpense(Expense expense) {
     setState(() {
       _registeredExpenses.add(expense);
     });
   }
 
+  void _removeExpense(Expense expense) {
+    final expenseIndex = _registeredExpenses.indexOf(expense);
+    setState(() {
+      _registeredExpenses.remove(expense);
+    });
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        duration: const Duration(seconds: 3),
+        action: SnackBarAction(
+            label: 'Undo',
+            onPressed: (){
+              setState(() {
+                _registeredExpenses.insert(expenseIndex, expense);
+              });
+            }),
+        content: const Text("Expense Deleted")));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Flutter Expense Tracker'),
-        actions: [
-          IconButton(
-              onPressed: _openAddExpenseOverlay,
-              icon:const Icon(Icons.add))
-        ],
-      ),
-      body: Column(
-        children: [
-          Text("The Chart"),
-         Expanded(
-           child: ExpensesList(
-               expenses: _registeredExpenses,
-           ),
-         ),
-        ],
-      ),
+    Widget mainContent = const Center(
+      child: Text("No Expense Found.Start Adding Some!"),
     );
+
+    if (_registeredExpenses.isNotEmpty) {
+      mainContent = ExpensesList(
+        onRemoveExpense: _removeExpense,
+        expenses: _registeredExpenses,
+      );
+    }
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Flutter Expense Tracker'),
+          actions: [
+            IconButton(
+                onPressed: _openAddExpenseOverlay,
+                icon: const Icon(Icons.add))
+          ],
+        ),
+        body: Column(
+          children: [
+            Text("The Chart"),
+            Expanded(
+              child: mainContent,
+            ),
+          ],
+        ),
+      );
+    }
   }
-}
