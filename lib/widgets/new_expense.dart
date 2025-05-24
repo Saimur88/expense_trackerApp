@@ -23,6 +23,17 @@ class _NewExpenseState extends State<NewExpense> {
     super.dispose();
   }
 
+  void _presentDatePicker(){
+    final now = DateTime.now();
+    final firstDate = DateTime(now.year - 1, now.month, now.day);
+    final lastDate = DateTime(now.year + 1, now.month, now.day);
+    showDatePicker(
+        context: context,
+        initialDate: now,
+        firstDate: firstDate,
+        lastDate: lastDate);
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -36,19 +47,38 @@ class _NewExpenseState extends State<NewExpense> {
             label: Text("Title")
           ),
         ),
-        TextField(
-          controller: _amountController,
-          keyboardType: TextInputType.number,
-          maxLength: 50,
-          decoration: const InputDecoration(
-              label: Text("Amount")
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _amountController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  prefixText: '\$ ',
+                    label: Text("Amount")
+                ),
+              ),
+            ),
+            SizedBox(width:  16,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text('Select Date'),
+                IconButton(
+                    onPressed: _presentDatePicker,
+                    icon: Icon(Icons.calendar_month))
+              ],
+            )
+          ],
         ),
         Row(
           children: [
-            ElevatedButton(
-                onPressed: (){}, 
-                child: Text('Cancel')),
+           TextButton(
+               onPressed: (){
+                 Navigator.pop(context);
+               },
+               child: Text('Cancel')),
             ElevatedButton(
                 onPressed: (){
                   print(_titleController.text);
